@@ -1,0 +1,49 @@
+version: '3'
+    
+services:
+    server:
+        image: ultraturtle0/timebandit:server
+        build:
+            context: ./server
+            dockerfile: Dockerfile
+        env_file: .env.dev
+        command: bash -c "npm install; npm run start"
+        volumes: 
+            - ./server:/app
+        ports:
+            - "${SERVER_PORT:-8000}:${SERVER_PORT:-8000}"
+        depends_on:
+            - mongodb
+        stdin_open: true
+        tty: true
+    mongodb:
+        image: mongo
+        ports:
+            - "${DB_PORT:-27107}:27107"
+    client:
+        image: ultraturtle0/timebandit:client
+        build: 
+            context: ./client
+            dockerfile: Dockerfile
+        command: bash -c "npm install; npm run start"
+        volumes:
+            - ./client:/app
+            - ./server:/app/server
+            - node_modules:/app/node_modules
+        ports:
+            - "${CLIENT_PORT:-3000}:3000"
+        depends_on:
+            - server
+
+    maxhost:
+        image: ultraturtle0/timebandit:maxhost
+        build:
+            context: ./maxhost
+            dockerfile: Dockerfile
+        command: bash -c "npm install; npm run start"
+        ports:
+            - "${MAXMSP_PORT:-12000}:12000"
+        depends_on:
+            - server
+volumes:
+    node_modules:
