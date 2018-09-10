@@ -19,8 +19,18 @@ io.set('origins', '*:*');
 io.sockets
     .on('connection', (socket) => {
         console.log('max connected!');
-        setInterval(() => {
-            console.log('we get here');
-            socket.emit('message', 'bang');
-        }, 500);
+        socket
+            .on('subscribe', (payload) => {
+                console.log('subscription: ' + payload);
+                Object.keys(socket.rooms).forEach(key => socket.leave(key));
+                socket.join('inst'+payload);
+            });
     });
+
+setInterval(() => {
+    io.to('inst0').emit('message', 'bang');
+}, 500);
+setInterval(() => {
+    io.to('inst1').emit('message', 'bang');
+}, 250);
+

@@ -12,3 +12,12 @@ socket
         window.max.outlet(payload);
     });
 
+window.max.bindInlet('subscribe', function(inst) {
+    window.max.outlet(inst);
+    socket.emit('subscribe', inst);
+});
+
+function handleInst(value) {
+    socket.emit('subscribe', value);
+    window.max.outlet('subscribed to ' + value);
+}
